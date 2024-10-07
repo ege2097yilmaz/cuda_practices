@@ -15,6 +15,10 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(CUDA_SRCS src/gaussian_filter.cu)
 
+set(IMAGE_PATH "${CMAKE_SOURCE_DIR}/images")
+
+add_compile_definitions(IMAGE_PATH="${IMAGE_PATH}")
+
 add_executable(gaussianFilter src/main.cpp ${CUDA_SRCS})
 
 

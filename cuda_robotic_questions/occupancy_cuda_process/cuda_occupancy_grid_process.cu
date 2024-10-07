@@ -1,3 +1,14 @@
+/**
+ * @file cuda_occupancy_grid_process.cu
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-10-07
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include <cuda_runtime.h>
 #include <iostream>
 

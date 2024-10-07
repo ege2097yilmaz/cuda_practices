@@ -1,3 +1,0 @@
-/home/teamx/deneme/cuda_practices/cuda_image_processing/gaussianFilter/build/CMakeFiles/gaussianFilter.dir
-/home/teamx/deneme/cuda_practices/cuda_image_processing/gaussianFilter/build/CMakeFiles/edit_cache.dir
-/home/teamx/deneme/cuda_practices/cuda_image_processing/gaussianFilter/build/CMakeFiles/rebuild_cache.dir
