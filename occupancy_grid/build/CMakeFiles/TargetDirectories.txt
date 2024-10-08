@@ -1,3 +1,0 @@
-/home/teamx/deneme/cuda/occupancy_grid/build/CMakeFiles/OccupancyGridProcessor.dir
-/home/teamx/deneme/cuda/occupancy_grid/build/CMakeFiles/edit_cache.dir
-/home/teamx/deneme/cuda/occupancy_grid/build/CMakeFiles/rebuild_cache.dir

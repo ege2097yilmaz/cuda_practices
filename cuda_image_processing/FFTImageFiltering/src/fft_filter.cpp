@@ -37,8 +37,12 @@ namespace fft_filter{
         cudaMemcpy(d_inputImage, h_inputImage, 
                     IMG_WIDTH * IMG_HEIGHT * sizeof(float), cudaMemcpyHostToDevice);
 
-        // todo perform FFT 
+        // perform fat fourier transform filter
+        fftForward(d_inputImage, d_freqDomain, IMG_WIDTH, IMG_HEIGHT);
 
+        applyFilter(d_freqDomain, IMG_WIDTH, IMG_HEIGHT, true, 50.0f); // 50 is arbitrary value for cut off
+
+        fftInverse(d_freqDomain, d_outputImage, IMG_WIDTH, IMG_HEIGHT);
 
         // copy from device to host
         cudaMemcpy(h_outputImage, d_outputImage, IMG_WIDTH * IMG_HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);

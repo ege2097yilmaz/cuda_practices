@@ -26,7 +26,7 @@ void fft_filter::applyFilter(cufftComplex* d_freq, int width, int height,
                      bool lowPass, float cutoff)
 {
     //definig lbock and grid size
-    dim3 blockSize(16, 16); // 256 block 
+    dim3 blockSize(16, 16); // 256 is recomended
     dim3 gridSize((width + blockSize.x - 1 / blockSize.x), (height + blockSize.y - 1) / blockSize.y);
 
     applyFilterKernel<<<gridSize, blockSize>>>(d_freq, width, height, lowPass, cutoff);
