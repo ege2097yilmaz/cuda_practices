@@ -57,6 +57,16 @@ The input pcd file can be seen:
 
 ![Alt Text](./images/input_pointcloud.png)
 
+THe output on the terminal looks like:
+```bash
+Loaded 460400 data points from sample.pcd
+CPU Voxel Filter took 0.263104 seconds.
+Filtered point cloud (CPU) saved as filtered_sample_cpu.pcd
+Voxel filter applied.
+GPU Voxel Filter took 0.0851571 seconds.
+Filtered point cloud (GPU) saved as filtered_sample_gpu.pcd
+```
+
 # Code Overview
 * main.cpp: Handles loading the input PCD file, calling the voxel filter function, and saving the filtered point cloud.
 * voxelFilter.cu: Contains the CUDA implementation of the voxel filter. It operates on the point cloud data and applies grid down-sampling using CUDA parallelism.
