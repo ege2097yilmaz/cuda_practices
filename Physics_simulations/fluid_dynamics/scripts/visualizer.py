@@ -1,17 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import glob
 
-# Load and visualize all simulation steps
+# Load all simulation files
 files = sorted(glob.glob("../build/fluid_sim_output_step_*.csv"))
+data = [np.loadtxt(file, delimiter=',') for file in files]
 
-for file in files:
-    data = np.loadtxt(file, delimiter=',')
-    plt.figure(figsize=(8, 8))
-    plt.imshow(data, cmap='viridis', origin='lower')
-    plt.colorbar(label='Intensity')
-    plt.title(f"Fluid Simulation - {file.split('_')[-1].split('.')[0]} steps")
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    plt.savefig(f"{file.split('.')[0]}.png")  # Save each step as an image
-    plt.show()
+# Set up the plot
+fig, ax = plt.subplots(figsize=(8, 8))
+cax = ax.imshow(data[0], cmap='viridis', origin='lower')
+colorbar = fig.colorbar(cax, ax=ax, label='Intensity')
+
+# Title and labels
+ax.set_title("Fluid Simulation")
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+
+# Animation function
+def update(frame):
+    cax.set_array(data[frame])
+    ax.set_title(f"Fluid Simulation - Step {frame + 1}")
+
+# Create the animation
+ani = FuncAnimation(fig, update, frames=len(data), interval=200)  # Adjust interval for speed
+
+# Show the animation
+plt.show()

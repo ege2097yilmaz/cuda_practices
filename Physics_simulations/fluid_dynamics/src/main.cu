@@ -8,7 +8,7 @@ int main() {
     params.dt = 0.01f; // smaller value for accuracy
     params.gridSize = 128;
 
-    float total_time = 5.0f; 
+    float total_time = 55.0f; 
     int simulationSteps = static_cast<int>(total_time / params.dt);
 
     std::cout << "Starting fluid simulation...\n";
