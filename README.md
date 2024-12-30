@@ -22,6 +22,9 @@ This repository contains a collection of simple CUDA (Compute Unified Device Arc
 6. **Image Processing**
    - Basic image processing examples using CUDA, including tasks like filtering and transformations.
 
+7. **Parallel Prefix Sum**
+   - The prefix sum example as a parallel programming algorithm that computes all partial sums of an input array.
+
 ## Requirements
 
 - NVIDIA GPU with CUDA support
