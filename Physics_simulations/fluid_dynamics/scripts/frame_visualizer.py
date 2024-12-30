@@ -22,8 +22,8 @@ axes[1].set_title("Last Frame")
 axes[1].set_xlabel("X")
 axes[1].set_ylabel("Y")
 
-cbar = fig.colorbar(axes[0].images[0], ax=axes, location='right', shrink=0.75)
-cbar.set_label('Intensity')
+# cbar = fig.colorbar(axes[0].images[0], ax=axes, location='right', shrink=0.75)
+# cbar.set_label('Intensity')
 
 plt.tight_layout()
 plt.show()
