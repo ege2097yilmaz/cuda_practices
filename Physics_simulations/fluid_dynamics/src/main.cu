@@ -6,7 +6,7 @@ int main() {
     params.viscosity = 0.1f;
     params.diffusion = 0.1f;
     params.dt = 0.01f; // smaller value for accuracy
-    params.gridSize = 128;
+    params.gridSize = 54;
 
     float total_time = 55.0f; 
     int simulationSteps = static_cast<int>(total_time / params.dt);
