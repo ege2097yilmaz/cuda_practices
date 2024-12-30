@@ -88,12 +88,12 @@ void simulate_fluid(const FluidSimParams& params, int steps) {
 
         // Save intermediate outputs every 1 second
         if ((step + 1) % static_cast<int>(1.0f / params.dt) == 0) {
-            std::string filename = "fluid_sim_output_step_" + std::to_string(step + 1) + ".csv";
+            std::string filename = "../datas/fluid_sim_output_step_" + std::to_string(step + 1) + ".csv";
             write_grid_to_csv(field, gridSize, filename);
         }
     }
 
-    write_grid_to_csv(field, gridSize, "fluid_sim_output_final.csv");
+    write_grid_to_csv(field, gridSize, "../datas/fluid_sim_output_final.csv");
 
     cudaFree(field);
     cudaFree(field0);
