@@ -12,7 +12,6 @@ __global__ void advect(float* field, float* field0, int gridSize, float dt) {
 
     if (i >= gridSize || j >= gridSize) return;
 
-    // Backtracking particles for advection
     float x = i - field0[i + j * gridSize] * dt;
     float y = j - field0[i + j * gridSize] * dt;
 
@@ -39,45 +38,13 @@ __global__ void diffuse(float* field, float* field0, float diffusion, int gridSi
 
     if (i >= gridSize || j >= gridSize) return;
 
-    for (int k = 0; k < 20; k++) { // Gauss-Seidel relaxation
+    for (int k = 0; k < 20; k++) {
         field[i + j * gridSize] =
             (field0[i + j * gridSize] + diffusion * dt *
              (field[i - 1 + j * gridSize] + field[i + 1 + j * gridSize] +
               field[i + (j - 1) * gridSize] + field[i + (j + 1) * gridSize])) /
             (1 + 4 * diffusion * dt);
     }
-}
-
-// Host function to run the simulation
-void simulate_fluid(const FluidSimParams& params, int steps) {
-    int gridSize = params.gridSize;
-    int gridSize2 = gridSize * gridSize;
-    size_t gridBytes = gridSize2 * sizeof(float);
-
-    float *field, *field0;
-    cudaMalloc(&field, gridBytes);
-    cudaMalloc(&field0, gridBytes);
-
-    cudaMemset(field, 0, gridBytes);
-    cudaMemset(field0, 0, gridBytes);
-
-    dim3 threadsPerBlock(16, 16);
-    dim3 numBlocks((gridSize + 15) / 16, (gridSize + 15) / 16);
-
-    for (int step = 0; step < steps; step++) {
-        // Advection step
-        advect<<<numBlocks, threadsPerBlock>>>(field, field0, gridSize, params.dt);
-
-        // Diffusion step
-        diffuse<<<numBlocks, threadsPerBlock>>>(field, field0, params.diffusion, gridSize, params.dt);
-
-        cudaMemcpy(field0, field, gridBytes, cudaMemcpyDeviceToDevice);
-    }
-
-    cudaFree(field);
-    cudaFree(field0);
-
-    write_grid_to_csv(field, gridSize, "fluid_sim_output.csv");
 }
 
 void write_grid_to_csv(const float* field, int gridSize, const std::string& filename) {
@@ -94,3 +61,35 @@ void write_grid_to_csv(const float* field, int gridSize, const std::string& file
     }
     file.close();
 }
+
+void simulate_fluid(const FluidSimParams& params, int steps) {
+    int gridSize = params.gridSize;
+    int gridSize2 = gridSize * gridSize;
+    size_t gridBytes = gridSize2 * sizeof(float);
+
+    float *field, *field0;
+    cudaMalloc(&field, gridBytes);
+    cudaMalloc(&field0, gridBytes);
+
+    std::vector<float> initialField(gridSize2, 0.0f);
+    int center = gridSize / 2;
+    initialField[center + center * gridSize] = 10.0f;
+
+    cudaMemcpy(field, initialField.data(), gridBytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(field0, initialField.data(), gridBytes, cudaMemcpyHostToDevice);
+
+    dim3 threadsPerBlock(16, 16);
+    dim3 numBlocks((gridSize + 15) / 16, (gridSize + 15) / 16);
+
+    for (int step = 0; step < steps; step++) {
+        advect<<<numBlocks, threadsPerBlock>>>(field, field0, gridSize, params.dt);
+        diffuse<<<numBlocks, threadsPerBlock>>>(field, field0, params.diffusion, gridSize, params.dt);
+        cudaMemcpy(field0, field, gridBytes, cudaMemcpyDeviceToDevice);
+    }
+
+    write_grid_to_csv(field, gridSize, "fluid_sim_output.csv");
+
+    cudaFree(field);
+    cudaFree(field0);
+}
+
