@@ -11,9 +11,9 @@ set(CMAKE_CUDA_STANDARD 17)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(SOURCES
-    src/main.cpp
+    # src/main.cpp
     src/fluid_simulation.cu
-    src/visualization.cpp
+    # src/visualization.cpp
 )
 
 add_executable(pipe_flow ${SOURCES})
