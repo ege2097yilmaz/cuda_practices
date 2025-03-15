@@ -17,13 +17,44 @@ __global__ void update_velocity(float *velocityX, float *velocityY, float *press
     }
 }
 
-__global__ void apply_boundaries(float *velocityX, float *velocityY) {
+// CUDA Kernel: Update Velocity Field
+__global__ void update_velocity_kernel(float *velocityX, float *velocityY, float *pressure) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    if (x > 0 && x < WIDTH - 1 && y > 0 && y < HEIGHT - 1) {
+        int idx = y * WIDTH + x;
+        // Compute velocity updates using pressure gradient
+        velocityX[idx] -= TIME_STEP * (pressure[idx + 1] - pressure[idx - 1]);
+        velocityY[idx] -= TIME_STEP * (pressure[idx + WIDTH] - pressure[idx - WIDTH]);
+    }
+}
+
+
+// Solve Pressure Poisson Equation
+__global__ void pressure_solver_kernel(float *pressure, float *velocityX, float *velocityY) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    if (x > 0 && x < WIDTH - 1 && y > 0 && y < HEIGHT - 1) {
+        int idx = y * WIDTH + x;
+        // Approximate pressure using neighboring values
+        pressure[idx] = 0.25f * (pressure[idx + 1] + pressure[idx - 1] +
+                                 pressure[idx + WIDTH] + pressure[idx - WIDTH] -
+                                 (velocityX[idx] - velocityX[idx - 1] +
+                                  velocityY[idx] - velocityY[idx - WIDTH]));
+    }
+}
+
+
+// Apply Boundary Conditions
+__global__ void apply_boundary_conditions_kernel(float *velocityX, float *velocityY) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     int idx = y * WIDTH + x;
-    if (x == 0 || x == WIDTH - 1 || y == 0 || y == HEIGHT - 1) {
-        velocityX[idx] = 0;
-        velocityY[idx] = 0;
+    
+    // No-slip condition on pipeline surfac
+    if (y == HEIGHT / 2 && x > PIPE_START && x < PIPE_END) {
+        velocityX[idx] = 0.0f;
+        velocityY[idx] = 0.0f;
     }
 }
 
@@ -41,8 +72,12 @@ void step_simulation() {
     dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
     dim3 gridDim(WIDTH / BLOCK_SIZE, HEIGHT / BLOCK_SIZE);
     
-    update_velocity<<<gridDim, blockDim>>>(d_velocityX, d_velocityY, d_pressure);
-    apply_boundaries<<<gridDim, blockDim>>>(d_velocityX, d_velocityY);
+    update_velocity_kernel<<<gridDim, blockDim>>>(d_velocityX, d_velocityY, d_pressure);
+    pressure_solver_kernel<<<gridDim, blockDim>>>(d_pressure, d_velocityX, d_velocityY);
+    apply_boundary_conditions_kernel<<<gridDim, blockDim>>>(d_velocityX, d_velocityY);
+    
     cudaMemcpy(h_velocityX, d_velocityX, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
     cudaMemcpy(h_velocityY, d_velocityY, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_pressure, d_pressure, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
 }
+
