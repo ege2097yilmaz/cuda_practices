@@ -6,7 +6,40 @@ Fluid Simulation CUDA Kernels
 
 float *h_velocityX, *h_velocityY, *h_pressure;
 float *d_velocityX, *d_velocityY, *d_pressure;
+bool stop_simulation = false;
 
+void visualize_simulation() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_POINTS);
+    
+    float max_velocity = 1.0f; // Set a reference max velocity
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            int idx = y * WIDTH + x;
+            float velocity_magnitude = sqrt(h_velocityX[idx] * h_velocityX[idx] + h_velocityY[idx] * h_velocityY[idx]);
+            float normalized_velocity = velocity_magnitude / max_velocity;
+            
+            // Color mapping: Red for high velocity, blue for low velocity
+            glColor3f(normalized_velocity, 0.0f, 1.0f - normalized_velocity);
+            glVertex2f((float)x / WIDTH * 2 - 1, (float)y / HEIGHT * 2 - 1);
+        }
+    }
+
+    glEnd();
+    glutSwapBuffers();
+}
+
+// OpenGL Display Loop
+void display() {
+    visualize_simulation();
+}
+
+void update(int value) {
+    if (!stop_simulation) {
+        glutPostRedisplay();
+        glutTimerFunc(16, update, 0);
+    }
+}
 __global__ void update_velocity(float *velocityX, float *velocityY, float *pressure) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
