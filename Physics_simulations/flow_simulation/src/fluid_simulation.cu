@@ -122,13 +122,25 @@ void init_simulation() {
 void step_simulation() {
     dim3 blockDim(BLOCK_SIZE, BLOCK_SIZE);
     dim3 gridDim(WIDTH / BLOCK_SIZE, HEIGHT / BLOCK_SIZE);
+    while (!stop_simulation) {
+        update_velocity_kernel<<<gridDim, blockDim>>>(d_velocityX, d_velocityY, d_pressure);
+        pressure_solver_kernel<<<gridDim, blockDim>>>(d_pressure, d_velocityX, d_velocityY);
+        apply_boundary_conditions_kernel<<<gridDim, blockDim>>>(d_velocityX, d_velocityY);
     
-    update_velocity_kernel<<<gridDim, blockDim>>>(d_velocityX, d_velocityY, d_pressure);
-    pressure_solver_kernel<<<gridDim, blockDim>>>(d_pressure, d_velocityX, d_velocityY);
-    apply_boundary_conditions_kernel<<<gridDim, blockDim>>>(d_velocityX, d_velocityY);
-    
-    cudaMemcpy(h_velocityX, d_velocityX, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_velocityY, d_velocityY, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_pressure, d_pressure, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_velocityX, d_velocityX, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_velocityY, d_velocityY, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(h_pressure, d_pressure, WIDTH * HEIGHT * sizeof(float), cudaMemcpyDeviceToHost);
+    }
+}
+
+void handle_user_input() {
+    char input;
+    while (true) {
+        std::cin >> input;
+        if (input == 'q') {
+            stop_simulation = true;
+            break;
+        }
+    }
 }
 
