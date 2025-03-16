@@ -99,6 +99,20 @@ void init_simulation() {
     h_velocityX = (float*)malloc(size);
     h_velocityY = (float*)malloc(size);
     h_pressure = (float*)malloc(size);
+
+    // initialize velocity at the inlet
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            int idx = y * WIDTH + x;
+            h_velocityX[idx] = (x == 0) ? 0.25f : 0.0f;  // 0.25 m/s 
+            h_velocityY[idx] = 0.0f;
+            h_pressure[idx] = 0.0f;
+        }
+    }
+
+    cudaMemcpy(d_velocityX, h_velocityX, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_velocityY, h_velocityY, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_pressure, h_pressure, size, cudaMemcpyHostToDevice);
 }
 
 void step_simulation() {
