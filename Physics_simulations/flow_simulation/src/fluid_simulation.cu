@@ -3,6 +3,10 @@ Fluid Simulation CUDA Kernels
 */
 
 #include "fluid_simulation.h"
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <GL/glut.h>
 
 float *h_velocityX, *h_velocityY, *h_pressure;
 float *d_velocityX, *d_velocityY, *d_pressure;
